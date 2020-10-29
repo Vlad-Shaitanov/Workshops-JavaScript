@@ -1,4 +1,5 @@
 "use strict";
+import Swiper from 'https://unpkg.com/swiper/swiper-bundle.esm.browser.min.js';
 //First day
 
 const cartButton = document.querySelector("#cart-button"),
@@ -19,6 +20,11 @@ const cartButton = document.querySelector("#cart-button"),
 	cardsMenu = document.querySelector(".cards-menu");
 
 let login = localStorage.getItem("delivery");
+
+function validName(string) {//Валидация логина
+	const regName = /^[a-zA-Z][a-zA-Z0-9-_\.]{1,20}$/;
+	return regName.test(string);//Проверка соответствия строки регулярке
+}
 
 function toggleModal() {//Переключение модального окна
 	modal.classList.toggle("is-open");
@@ -63,7 +69,7 @@ function notAuthorized() {//Посетитель не авторизован
 	function logIn(event) {
 		event.preventDefault();
 
-		if (loginInput.value.trim()) {
+		if (validName(loginInput.value)) {
 			login = loginInput.value;
 			localStorage.setItem("delivery", login);
 
@@ -150,18 +156,21 @@ function createCardGood() {//Создание карточки продукта
 
 function openGoods(event) {
 	const target = event.target;
-	const restaurant = target.closest(".card-restaurant");
+	if (login) {
+		const restaurant = target.closest(".card-restaurant");
+		if (restaurant) {
+			containerPromo.classList.add("hide");
+			restaurants.classList.add("hide");
+			menu.classList.remove("hide");
 
-	if (restaurant) {
-		containerPromo.classList.add("hide");
-		restaurants.classList.add("hide");
-		menu.classList.remove("hide");
+			cardsMenu.textContent = "";//Очистка меню перед новой отрисовкой
 
-		cardsMenu.textContent = "";//Очистка меню перед новой отрисовкой
-
-		createCardGood();
-		createCardGood();
-		createCardGood();
+			createCardGood();
+			createCardGood();
+			createCardGood();
+		}
+	} else {
+		toggleModalAuth();
 	}
 }
 
@@ -182,3 +191,21 @@ checkAuth();
 createCardRestaurant();
 createCardRestaurant();
 createCardRestaurant();
+
+
+// === Slider ===
+
+new Swiper(".swiper-container", {
+	slidesPerView: 1,
+	loop: true,
+	autoplay: true,
+	effect: "cube",
+	grabCursor: true,
+	cubeEffect: {
+		shadow: false,
+	},
+	pagination: {
+		el: '.swiper-pagination',
+		clickable: true,
+	}
+});
