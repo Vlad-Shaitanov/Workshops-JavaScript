@@ -2,6 +2,23 @@
 import Swiper from 'https://unpkg.com/swiper/swiper-bundle.esm.browser.min.js';
 //First day
 
+// === Slider ===
+
+const swiper = new Swiper(".swiper-container", {
+	slidesPerView: 1,
+	loop: true,
+	autoplay: true,
+	effect: "cube",
+	grabCursor: true,
+	cubeEffect: {
+		shadow: false,
+	},
+	pagination: {
+		el: '.swiper-pagination',
+		clickable: true,
+	}
+});
+
 const cartButton = document.querySelector("#cart-button"),
 	modal = document.querySelector(".modal"),
 	close = document.querySelector(".close"),
@@ -25,12 +42,25 @@ const cartButton = document.querySelector("#cart-button"),
 	inputSearch = document.querySelector(".input-search"),
 	modalBody = document.querySelector(".modal-body"),
 	modalPrice = document.querySelector(".modal-pricetag"),
-	buttonClearCart = document.querySelector(".clear-cart");
+	buttonClearCart = document.querySelector(".clear-cart"),
+	inputAddress = document.querySelector(".input-address");
 
 
 let login = localStorage.getItem("delivery");
 
-const cart = [];//Корзина
+const cart = JSON.parse(localStorage.getItem(`delivery_${login}`)) || [];//Корзина
+
+function saveCart() {
+	localStorage.setItem(`delivery_${login}`, JSON.stringify(cart));
+}
+
+function downloadCart() {
+	if (localStorage.getItem(`delivery_${login}`)) {
+		const data = JSON.parse(localStorage.getItem(`delivery_${login}`));
+
+		cart.push(...data);
+	}
+}
 
 const getData = async function (url) {//Работа с базой данных
 	const response = await fetch(url);
@@ -62,11 +92,19 @@ function toggleModalAuth() {//Включение модального окна �
 	}
 }
 
+function returnMain() {
+	containerPromo.classList.remove("hide");
+	// swiper.init();
+	restaurants.classList.remove("hide");
+	menu.classList.add("hide");
+}
+
 function authorized() {//Посетитель авторизован
 	console.log("Авторизован");
 
 	function logOut() {
 		login = null;
+		cart.length = 0;//Очистка корзины
 		localStorage.removeItem("delivery");
 		buttonAuth.style.display = "";
 		userName.style.display = "";
@@ -75,6 +113,7 @@ function authorized() {//Посетитель авторизован
 		buttonOut.removeEventListener("click", logOut);
 
 		checkAuth();
+		returnMain();
 	}
 
 	userName.textContent = login;//Вывод имени пользователя
@@ -99,6 +138,7 @@ function notAuthorized() {//Посетитель не авторизован
 			localStorage.setItem("delivery", login);
 
 			toggleModalAuth();
+			downloadCart();
 			buttonAuth.removeEventListener("click", toggleModalAuth);
 			closeAuth.removeEventListener("click", toggleModalAuth);
 			logInForm.removeEventListener("submit", logIn);
@@ -203,6 +243,7 @@ function openGoods(event) {
 		if (restaurant) {
 			cardsMenu.textContent = "";//Очистка меню перед новой отрисовкой
 			containerPromo.classList.add("hide");
+			// swiper.destroy(false);
 			restaurants.classList.add("hide");
 			menu.classList.remove("hide");
 
@@ -244,6 +285,7 @@ function addToCart(event) {
 				count: 1,
 			});
 		}
+		saveCart();
 	}
 }
 
@@ -268,6 +310,7 @@ function renderCart() {
 	}, 0);
 
 	modalPrice.textContent = totalPrice + " ₽";
+	saveCart();
 }
 
 function changeCount(event) {
@@ -318,6 +361,7 @@ function init() {
 
 	logo.addEventListener("click", () => {
 		containerPromo.classList.remove("hide");
+		// swiper.init();
 		restaurants.classList.remove("hide");
 		menu.classList.add("hide");
 	});
@@ -353,6 +397,7 @@ function init() {
 								});
 
 								containerPromo.classList.add("hide");
+								// swiper.destroy(false);
 								restaurants.classList.add("hide");
 								menu.classList.remove("hide");
 
@@ -372,18 +417,3 @@ function init() {
 init();
 
 
-// === Slider ===
-new Swiper(".swiper-container", {
-	slidesPerView: 1,
-	loop: true,
-	autoplay: true,
-	effect: "cube",
-	grabCursor: true,
-	cubeEffect: {
-		shadow: false,
-	},
-	pagination: {
-		el: '.swiper-pagination',
-		clickable: true,
-	}
-});
