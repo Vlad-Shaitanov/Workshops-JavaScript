@@ -1,5 +1,11 @@
 "use strict";
 
+const initDataTodo = key => localStorage.getItem(key) ?
+	JSON.parse(localStorage.getItem(key)) : [];
+
+const updateDataTodo = (key, todoData) =>
+	localStorage.setItem(key, JSON.stringify(todoData));
+
 const createToDo = (title, form, list) => {
 	const todoContainer = document.createElement("div");
 	const todoRow = document.createElement("div");
@@ -62,15 +68,14 @@ const createItemTodo = (item, listTodo) => {
 
 	itemTodo.append(bntItem);
 	listTodo.append(itemTodo);
-	return itemTodo;
+	// return itemTodo;
 };
 
-const addTodoItem = (id, todoData, listTodo, nameTodo, descriptionTodo) => {
+const addTodoItem = (key, todoData, listTodo, nameTodo, descriptionTodo) => {
 	const id = `todo${(+new Date()).toString(16)}`;
-
 	todoData.push({ id, nameTodo, descriptionTodo, success: false });
 
-	updateTodo(listTodo, todoData);
+	updateTodo(listTodo, todoData, key);
 };
 
 const createModal = () => {
@@ -129,20 +134,22 @@ const createModal = () => {
 	return { modalElem, btnReady, btnDelete, showModal };
 };
 
-const updateTodo = (listTodo, todoData) => {
+const updateTodo = (listTodo, todoData, key) => {
 	listTodo.textContent = "";
 	todoData.forEach(item => createItemTodo(item, listTodo));
+	updateDataTodo(key, todoData);
 };
 
-const initToDo = (selector, titleTodo) => {
-	const todoData = [];
+const initToDo = (selector) => {
+	const key = prompt("Введите ваше имя:");
+	const todoData = initDataTodo(key);
 
 	const wrapper = document.querySelector(selector);
 	const formTodo = createFormTodo();
 	const listTodo = createListTodo();
 	const modal = createModal();
 
-	const todoApp = createToDo(titleTodo, formTodo.form, listTodo);
+	const todoApp = createToDo(key, formTodo.form, listTodo);
 
 	document.body.append(modal.modalElem);
 	wrapper.append(todoApp);
@@ -154,7 +161,8 @@ const initToDo = (selector, titleTodo) => {
 		formTodo.textArea.classList.remove("is-invalid");
 
 		if (formTodo.input.value && formTodo.textArea.value) {
-			addTodoItem(todoData, listTodo, formTodo.input.value, formTodo.textArea.value);
+			// const id = `todo${(+new Date()).toString(16)}`;
+			addTodoItem(key, todoData, listTodo, formTodo.input.value, formTodo.textArea.value);
 			formTodo.form.reset();
 		} else {
 			if (!formTodo.input.value) {
@@ -170,23 +178,30 @@ const initToDo = (selector, titleTodo) => {
 		const target = event.target;
 
 		if (target.classList.contains("list-item")) {
-			const item = todoData.find(elem => elem.id = target.id);
+			const item = todoData.find(elem => elem.id === target.id);
 			modal.showModal(item.nameTodo, item.descriptionTodo, item.id);
 		}
 	});
 
 	modal.btnReady.addEventListener("click", () => {
-		const itemTodo = todoData.find(elem =>
-			elem.id = modal.modalElem.dataset.idItem);
+		const itemTodo = todoData.find(elem => {
+			return elem.id === modal.modalElem.dataset.idItem;
+		});
+
 		itemTodo.success = !itemTodo.success;
 
-		updateTodo(listTodo, todoData);
+		updateTodo(listTodo, todoData, key);
 	});
 	modal.btnDelete.addEventListener("click", () => {
 		const index = todoData.findIndex(elem =>
-			elem.id = modal.modalElem.dataset.idItem);
-		updateTodo(listTodo, todoData);
+			elem.id === modal.modalElem.dataset.idItem);
+		todoData.splice(index, 1);
+		updateTodo(listTodo, todoData, key);
 	});
+
+	document.title = key;
+
+	updateTodo(listTodo, todoData, key);
 };
 
-initToDo(".app", "Список дел");
+initToDo(".app");
