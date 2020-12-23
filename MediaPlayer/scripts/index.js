@@ -13,6 +13,9 @@ const deactivationPlayer = () => {
 	temp.style.display = "none";
 	playerBtns.forEach(item => item.classList.remove("active"));
 	playerBlocks.forEach(item => item.classList.remove("active"));
+
+	radioPlayerInit.stop();
+	videoPlayerInit.stop();
 };
 
 playerBtns.forEach((btn, i) => {

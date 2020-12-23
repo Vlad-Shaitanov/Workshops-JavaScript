@@ -76,9 +76,23 @@ export const videoPlayerInit = () => {
 
 	videoFullscreen.addEventListener("click", () => {//Разворот видео на весь экран
 		videoPlayer.requestFullscreen();
+		videoPlayer.controls = true;//Панель управления для файрфокс
+	});
+
+	videoPlayer.addEventListener("fullscreenchange", () => {//Панель управления для файрфокс
+		if (document.fullscreen) {
+			videoPlayer.controls = true;
+		} else {
+			videoPlayer.controls = false;
+		}
 	});
 
 	videoPlayer.addEventListener("volumechange", () => {
 		videoVolume.value = Math.round(videoPlayer.volume * 100);
 	});
+
+	videoPlayerInit.stop = () => {//Поставим видео на паузу при смене вкладки
+		videoPlayer.pause();
+		toggleIcon();
+	};
 };

@@ -7,9 +7,12 @@ export const radioPlayerInit = () => {
 	const radioHeaderBig = document.querySelector(".radio-header__big");
 	const radioItem = document.querySelectorAll(".radio-item");
 	const radioStop = document.querySelector(".radio-stop");
+	const radioVolume = document.querySelector(".radio-volume");
+	const radioMute = document.querySelector(".radio-mute");
 
 	const audio = new Audio();//Экземпляр объекта Audio
 	audio.type = "audio/aac";//Принимаемый формат(тип радио)
+	let prevVolume = audio.volume;
 
 	radioStop.disabled = true;//По дефолту кнопка СТОП у радио неактивна
 
@@ -54,4 +57,20 @@ export const radioPlayerInit = () => {
 		}
 		changeIconPlay();
 	});
+
+	radioMute.addEventListener("click", () => {
+		audio.muted = !audio.muted;
+	});
+
+	radioVolume.addEventListener("input", () => {
+		audio.volume = radioVolume.value / 100;
+		audio.muted = false;
+	});
+
+	radioVolume.value = audio.volume * 100;
+
+	radioPlayerInit.stop = () => {//Поставим радио на паузу при смене вкладки
+		audio.pause();
+		changeIconPlay();
+	};
 };
