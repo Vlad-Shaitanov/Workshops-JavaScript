@@ -11,6 +11,8 @@ export const musicPlayerInit = () => {
 	const audioProgress = document.querySelector(".audio-progress");
 	const audioProgressTiming = document.querySelector(".audio-progress__timing");
 	const audioTimeTotal = document.querySelector(".audio-time__total");
+	const audioVolume = document.querySelector(".audio-volume");
+	const audioMute = document.querySelector(".audio-mute");
 
 	const playlist = ["hello", "flow", "speed"];
 	/*Массив с плейлистом создан вручную, т.к. нет бэкенда, который
@@ -110,4 +112,17 @@ export const musicPlayerInit = () => {
 
 		audioPlayer.currentTime = progress;
 	});
+
+
+	audioVolume.addEventListener("input", () => {
+
+		const valueVolume = audioVolume.value;
+		audioPlayer.volume = valueVolume / 100;
+	});
+
+	audioVolume.value = audio.volume * 100;
+
+	musicPlayerInit.stop = () => {
+		audioPlayer.pause();
+	};
 };
